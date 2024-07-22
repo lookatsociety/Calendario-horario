@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Horario de Clases</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            transition: background-color 0.3s;
+        }
+
+        .container {
+            width: 80%;
+            max-width: 1000px;
+            margin: 0 auto;
+            border: 2px solid #ddd;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+            background-color: #fff;
+            overflow: hidden;
+            padding: 20px;
+            position: relative;
+            transition: background-color 0.3s;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            color: #333;
+            transition: color 0.3s;
+        }
+        .header-logo {
+            width: 300px; /* Tamaño de la imagen */
+            height: auto;
+            margin-right: 90; /* Espacio entre la imagen y el título */
+            margin-left: 40; /* Espacio entre la imagen y el título */
+        }
+        .hamburger {
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 1000;
+            background-color: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            margin-left: auto;
+        }
+
+        .hamburger-menu {
+            display: none;
+            position: absolute;
+            top: 60px;
+            right: 0;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 10px;
+            z-index: 1001;
+        }
+
+        .hamburger-menu button {
+            display: block;
+            width: 100%;
+            border: none;
+            padding: 8px;
+            cursor: pointer;
+            background-color: #f5f5f5;
+            border-radius: 5px;
+            margin-bottom: 5px;
+            text-align: left;
+        }
+
+        .hamburger-menu button:last-child {
+            margin-bottom: 0;
+        }
+
+        .hamburger-menu button.dark-mode {
+            background-color: #191919;
+            color: #fff;
+        }
+
+        .hamburger-menu button.light-mode {
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+            min-width: 80px;
+            position: relative;
+        }
+
+        th {
+            background-color: #1c1c1c;
+            color: #fff;
+        }
+
+        td {
+            cursor: pointer;
+        }
+
+        .time-column {
+            background-color: #bebebe;
+            font-weight: bold;
+        }
+
+        .highlight {
+            background-color: #e7f3fe;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding-top: 60px;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 90%;
+            max-width: 500px;
+            border-radius: 15px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .modal-header {
+            margin-bottom: 15px;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 20px;
+            color: #333;
+        }
+
+        .modal-body {
+            margin-bottom: 15px;
+        }
+
+        .modal-body label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .modal-body input[type="text"] {
+            width: calc(100% - 22px);
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        .modal-body input[type="color"] {
+            width: 100%;
+            padding: 0;
+            border: none;
+            cursor: pointer;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 15px;
+        }
+
+        .modal-footer button {
+            padding: 10px 15px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 16px;
+            margin-left: 10px;
+        }
+
+        .modal-footer .delete-btn {
+            background-color: #dc3545;
+            color: #fff;
+        }
+
+        .modal-footer .save-btn {
+            background-color: #007bff;
+            color: #fff;
+        }
+
+        .modal-footer .duplicate-btn {
+            background-color: #28a745;
+            color: #fff;
+        }
+
+        @media (max-width: 768px) {
+            table, thead, tbody, th, td, tr {
+                display: block;
+            }
+
+            thead tr {
+                position: absolute;
+                top: -9999px;
+                left: -9999px;
+            }
+
+            tr {
+                border: 1px solid #ccc;
+                margin-bottom: 5px;
+            }
+
+            td {
+                border: none;
+                border-bottom: 1px solid #eee;
+                position: relative;
+                padding-left: 50%;
+                text-align: left;
+                min-width: unset;
+            }
+
+            td:before {
+                position: absolute;
+                top: 50%;
+                left: 10px;
+                width: 45%;
+                padding-right: 10px;
+                white-space: nowrap;
+                transform: translateY(-50%);
+            }
+
+            td:nth-of-type(1):before { content: "Hora"; }
+            td:nth-of-type(2):before { content: "Lunes"; }
+            td:nth-of-type(3):before { content: "Martes"; }
+            td:nth-of-type(4):before { content: "Miércoles"; }
+            td:nth-of-type(5):before { content: "Jueves"; }
+            td:nth-of-type(6):before { content: "Viernes"; }
+            td:nth-of-type(7):before { content: "Sábado"; }
+        }
+
+        /* Modo oscuro */
+        body.dark-mode {
+            background-color: #191919;
+        }
+
+        .container.dark-mode {
+            background-color: #f5f5f5;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.20); /* Ajusta la intensidad aquí */
+            }
+
+        .header h1.dark-mode {
+            color: #333;
+        }
+
+        .hamburger-menu.dark-mode {
+            background-color: #191919;
+        }
+
+        .hamburger-menu.dark-mode button.light-mode {
+            background-color: #333;
+            color: #fff;
+        }
+
+        .hamburger-menu.dark-mode button.dark-mode {
+            background-color: #191919;
+            color: #fff;
+        }
+
+        /* Estilos para arrastrar eventos */
+        .draggable {
+            cursor: move;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <img src="https://i.postimg.cc/tRcCJkCm/fondo-para-correo-3.png" alt="Logo" class="header-logo">
+    <div class="header">
+        <h1>Horario de Clases</h1>
+        <div class="hamburger">&#9776;</div>
+        <div class="hamburger-menu">
+            <button class="dark-mode">Modo Oscuro</button>
+            <button class="light-mode">Modo Claro</button>
+        </div>
+    </div>
+
+    <table>
+        <thead>
+        <tr>
+            <th>Hora</th>
+            <th>Lunes</th>
+            <th>Martes</th>
+            <th>Miércoles</th>
+            <th>Jueves</th>
+            <th>Viernes</th>
+            <th>Sábado</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td class="time-column">8:00 - 9:00</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td class="time-column">9:00 - 10:00</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td class="time-column">10:00 - 11:00</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td class="time-column">11:00 - 12:00</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td class="time-column">12:00 - 13:00</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td class="time-column">13:00 - 14:00</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td class="time-column">14:00 - 15:00</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td class="time-column">15:00 - 16:00</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+            <tr>
+            <td class="time-column">16:00 - 17:00</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            </tr>
+            <tr>
+            <td class="time-column">17:00 - 18:00</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            </tr>
+            <tr>
+            <td class="time-column">18:00 - 19:00</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            </tr>
+            <tr>
+            <td class="time-column">20:00 - 21:00</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            </tr>
+            <tr>
+                <td class="time-column">21:00 - 22:00</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<div id="myModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <div class="modal-header">
+            <h2>Editar Evento</h2>
+        </div>
+        <div class="modal-body">
+            <form id="eventForm">
+                <label for="eventName">Nombre del Evento:</label>
+                <input type="text" id="eventName">
+                <label for="eventLocation">Ubicación:</label>
+                <input type="text" id="eventLocation">
+                <label for="eventColor">Color:</label>
+                <input type="color" id="eventColor" value="#e7f3fe">
+                <div class="modal-footer">
+                    <button type="button" id="deleteButton" class="delete-btn">Eliminar</button>
+                    <button type="button" id="duplicateButton" class="duplicate-btn">Duplicar</button>
+                    <button type="submit" class="save-btn">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Funcionalidad del menú de hamburguesa
+    document.querySelector('.hamburger').addEventListener('click', function() {
+        var menu = document.querySelector('.hamburger-menu');
+        menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+    });
+
+    document.querySelectorAll('.hamburger-menu button').forEach(function(button) {
+        button.addEventListener('click', function() {
+            var mode = button.classList.contains('dark-mode') ? 'dark' : 'light';
+            document.body.className = mode === 'dark' ? 'dark-mode' : '';
+            document.querySelector('.container').className = mode === 'dark' ? 'container dark-mode' : 'container';
+            document.querySelector('.header h1').className = mode === 'dark' ? 'dark-mode' : '';
+            localStorage.setItem('mode', mode); // Guardar modo en localStorage
+        });
+    });
+
+    // Cargar modo desde localStorage al cargar la página
+    document.addEventListener('DOMContentLoaded', function() {
+        var savedMode = localStorage.getItem('mode');
+        if (savedMode === 'dark') {
+            document.body.classList.add('dark-mode');
+            document.querySelector('.container').classList.add('dark-mode');
+            document.querySelector('.header h1').classList.add('dark-mode');
+            document.querySelector('.hamburger-menu').classList.add('dark-mode');
+        }
+    });
+
+    // Funcionalidad del modal
+    let modal = document.getElementById("myModal");
+    let span = document.getElementsByClassName("close")[0];
+    let selectedCell;
+    let deleteButton = document.getElementById("deleteButton");
+    let duplicateButton = document.getElementById("duplicateButton");
+    let eventForm = document.getElementById("eventForm");
+    let eventNameInput = document.getElementById("eventName");
+    let eventLocationInput = document.getElementById("eventLocation");
+    let eventColorInput = document.getElementById("eventColor");
+
+    document.querySelectorAll("td").forEach(cell => {
+        cell.addEventListener("click", function() {
+            selectedCell = this;
+            let cellContent = selectedCell.innerHTML.split("<br>");
+            eventNameInput.value = cellContent[0] || "";
+            eventLocationInput.value = cellContent[1] || "";
+            eventColorInput.value = rgbToHex(window.getComputedStyle(selectedCell).backgroundColor) || "#e7f3fe";
+            modal.style.display = "block";
+        });
+    });
+
+    span.onclick = function() {
+        modal.style.display = "none";
+    }
+
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+
+    eventForm.onsubmit = function(e) {
+        e.preventDefault();
+        let eventName = eventNameInput.value;
+        let eventLocation = eventLocationInput.value;
+        let eventColor = eventColorInput.value;
+        selectedCell.innerHTML = `${eventName}<br>${eventLocation}`;
+        selectedCell.style.backgroundColor = eventColor;
+        selectedCell.classList.add("highlight");
+        modal.style.display = "none";
+        saveScheduleToLocalStorage();
+    }
+
+    deleteButton.onclick = function() {
+        selectedCell.innerHTML = "";
+        selectedCell.style.backgroundColor = "";
+        selectedCell.classList.remove("highlight");
+        modal.style.display = "none";
+        saveScheduleToLocalStorage();
+    }
+
+    duplicateButton.onclick = function() {
+        let newCell = prompt("Ingrese la celda destino (e.g., 1,2):");
+        if (newCell) {
+            let [row, col] = newCell.split(',').map(Number);
+            let targetCell = document.querySelector(`table tbody tr:nth-child(${row}) td:nth-child(${col})`);
+            if (targetCell) {
+                targetCell.innerHTML = selectedCell.innerHTML;
+                targetCell.style.backgroundColor = selectedCell.style.backgroundColor;
+                targetCell.classList.add("highlight");
+            } else {
+                alert("Celda no encontrada.");
+            }
+        }
+        modal.style.display = "none";
+        saveScheduleToLocalStorage();
+    }
+
+    // Funcionalidad para guardar el horario en localStorage
+    function saveScheduleToLocalStorage() {
+        let schedule = {};
+        document.querySelectorAll('tbody tr').forEach((row, rowIndex) => {
+            row.querySelectorAll('td').forEach((cell, colIndex) => {
+                let key = `${rowIndex}-${colIndex}`;
+                schedule[key] = {
+                    content: cell.innerHTML,
+                    color: cell.style.backgroundColor
+                };
+            });
+        });
+        localStorage.setItem('schedule', JSON.stringify(schedule));
+    }
+
+    // Cargar horario desde localStorage al cargar la página
+    document.addEventListener('DOMContentLoaded', function() {
+        var savedSchedule = JSON.parse(localStorage.getItem('schedule'));
+        if (savedSchedule) {
+            Object.keys(savedSchedule).forEach(key => {
+                let [rowIndex, colIndex] = key.split('-').map(Number);
+                let cell = document.querySelector(`table tbody tr:nth-child(${rowIndex + 1}) td:nth-child(${colIndex + 1})`);
+                if (cell) {
+                    cell.innerHTML = savedSchedule[key].content;
+                    cell.style.backgroundColor = savedSchedule[key].color;
+                }
+            });
+        }
+    });
+
+    // Estilos para arrastrar eventos
+    document.querySelectorAll('td').forEach(cell => {
+        cell.setAttribute('draggable', true);
+
+        cell.addEventListener('dragstart', function(event) {
+            const bgColor = window.getComputedStyle(event.target).backgroundColor;
+            event.dataTransfer.setData('text/plain', event.target.innerHTML);
+            event.dataTransfer.setData('text/bgColor', bgColor); // Use 'text/bgColor' for transferring color
+            event.target.classList.add('draggable');
+        });
+
+        cell.addEventListener('dragover', function(event) {
+            event.preventDefault();
+        });
+
+        cell.addEventListener('drop', function(event) {
+            event.preventDefault();
+            const data = event.dataTransfer.getData('text/plain');
+            const bgColor = event.dataTransfer.getData('text/bgColor');
+            event.target.innerHTML = data;
+            event.target.style.backgroundColor = bgColor;
+            event.target.classList.remove('draggable');
+            saveScheduleToLocalStorage();
+        });
+
+        cell.addEventListener('dragend', function() {
+            event.target.classList.remove('draggable');
+        });
+    });
+
+    // Helper function to convert RGB color to Hex
+    function rgbToHex(rgb) {
+        if (!rgb || rgb === 'transparent') return '#ffffff';
+        let sep = rgb.indexOf(",") > -1 ? "," : " ";
+        rgb = rgb.substr(4).split(")")[0].split(sep);
+
+        let r = (+rgb[0]).toString(16),
+            g = (+rgb[1]).toString(16),
+            b = (+rgb[2]).toString(16);
+
+        if (r.length === 1)
+            r = "0" + r;
+        if (g.length === 1)
+            g = "0" + g;
+        if (b.length === 1)
+            b = "0" + b;
+
+        return "#" + r + g + b;
+    }
+</script>
+
+</body>
+</html>
