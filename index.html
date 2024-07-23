@@ -477,7 +477,7 @@
                 <label for="eventLocation">Ubicación:</label>
                 <input type="text" id="eventLocation">
                 <label for="eventColor">Color:</label>
-                <input type="color" id="eventColor" value="#e7f3fe">
+<input type="text" id="eventColor" placeholder="Ingrese código de color (#RRGGBB)">
                 <div class="modal-footer">
                     <button type="button" id="deleteButton" class="delete-btn">Eliminar</button>
                     <button type="button" id="duplicateButton" class="duplicate-btn">Duplicar</button>
@@ -549,16 +549,25 @@
     }
 
     eventForm.onsubmit = function(e) {
-        e.preventDefault();
-        let eventName = eventNameInput.value;
-        let eventLocation = eventLocationInput.value;
-        let eventColor = eventColorInput.value;
-        selectedCell.innerHTML = `${eventName}<br>${eventLocation}`;
-        selectedCell.style.backgroundColor = eventColor;
-        selectedCell.classList.add("highlight");
-        modal.style.display = "none";
-        saveScheduleToLocalStorage();
+    e.preventDefault();
+    let eventName = eventNameInput.value;
+    let eventLocation = eventLocationInput.value;
+    let eventColor = eventColorInput.value.trim(); // Obtener el valor y limpiar espacios en blanco
+    if (!isValidHex(eventColor)) {
+        alert("Ingrese un código de color hexadecimal válido (#RRGGBB).");
+        return;
     }
+    selectedCell.innerHTML = `${eventName}<br>${eventLocation}`;
+    selectedCell.style.backgroundColor = eventColor;
+    selectedCell.classList.add("highlight");
+    modal.style.display = "none";
+    saveScheduleToLocalStorage();
+}
+
+// Función para validar el formato hexadecimal (#RRGGBB)
+function isValidHex(color) {
+    return /^#[0-9A-F]{6}$/i.test(color);
+}
 
     deleteButton.onclick = function() {
         selectedCell.innerHTML = "";
